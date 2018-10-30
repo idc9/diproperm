@@ -4,11 +4,11 @@ from setuptools import setup, find_packages
 #     with open('README.rst') as f:
 #            return f.read()
 
-install_requires = ['numpy', 'sklearn', 'scipy', 'statsmodels']
+install_requires = ['numpy', 'sklearn', 'statsmodels']
 
 setup(name='diproperm',
       version='0.0.1',
-      description='Implements DiProPerm.',
+      description='Implements DiProPerm for high dimensional hypothesis testing.',
       author='Iain Carmichael',
       author_email='idc9@cornell.edu',
       license='MIT',
