@@ -10,10 +10,12 @@ iain@unc.edu.
 Overview
 ========
 
+This package implements Direction-Projection-Permutation for High Dimensional
+Hypothesis Tests (DiPoPerm). For details see Wei et al, 2016 (`paper link`_, `arxiv link`_). DiProPerm "rigorously assesses whether a binary linear classifier is detecting statistically significant differences between two high-dimensional distributions."
 
 
-Direction-Projection-Permutation for High Dimensional
-Hypothesis Tests https://arxiv.org/pdf/1304.0796.pdf
+
+Wei, S., Lee, C., Wichers, L., & Marron, J. S. (2016). Direction-projection-permutation for high-dimensional hypothesis tests. Journal of Computational and Graphical Statistics, 25(2), 549-569.
 
 Installation
 ============
@@ -81,4 +83,6 @@ bug fixes, spelling errors, new features, etc.
 
 
 .. _Iain Carmichael: https://idc9.github.io/
+.. _paper link: https://www.tandfonline.com/doi/abs/10.1080/10618600.2015.1027773
+.. _arxiv link: https://arxiv.org/pdf/1304.0796.pdf
 .. _these example notebooks: https://github.com/idc9/diproperm/tree/master/doc
