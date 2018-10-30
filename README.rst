@@ -38,6 +38,7 @@ Example
 
     from diproperm.DiProPerm import DiProPerm
 
+    # toy binary class dataset (two isotropic Gaussians)
     X, y = make_blobs(n_samples=100, n_features=2, centers=2, cluster_std=2)
 
     # DiProPerm with mean difference classifier, mean difference summary
@@ -62,7 +63,7 @@ Example
 .. image:: doc/figures/dpp_hist.png
 
 
-For some more example code see `these example notebooks`_.
+For more example code see `these example notebooks`_.
 
 Help and Support
 ================
@@ -74,7 +75,7 @@ iain@unc.edu.
 Documentation
 ^^^^^^^^^^^^^
 
-The source code is located on github: https://github.com/idc9/diproperm.
+The source code is located on github: https://github.com/idc9/diproperm
 
 Testing
 ^^^^^^^
