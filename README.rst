@@ -44,11 +44,16 @@ Example
     dpp.fit(X, y)
 
     dpp.results['md']
+
+.. code:: python
+
     {'Z': 11.704865481794599,
      'cutoff_val': 1.2678333596648679,
      'obs': 4.542253375623943,
      'pval': 0.0,
      'rejected': True}
+
+.. code:: python
 
     dpp.hist('md')
 
