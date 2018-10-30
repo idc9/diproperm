@@ -19,7 +19,13 @@ Wei, S., Lee, C., Wichers, L., & Marron, J. S. (2016). Direction-projection-perm
 
 Installation
 ============
-This is currently an informal package under development so I've only made it installable from github.
+
+The diproperm package can be installed via pip or github. This package is currently only tested in python 3.6.
+
+::
+
+    pip install diproperm
+
 
 ::
 
