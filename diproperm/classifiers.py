@@ -12,7 +12,6 @@ def get_training_fun(clf, param_grid=None, metric='roc_auc', n_splits=5):
     clf:
         linear classifier object following sklearn's API.
 
-
     param_grid: dict, None
         Parameters to cross-validate over. If None, will not perform cross-validation.
 
@@ -102,7 +101,6 @@ def get_GNB_direction(clf):
     """
     Returns the normal vector for GaussianNB with binary classes
     """
-    # TODO:
     assert type(clf) == GaussianNB
     assert clf.theta_.shape[0] == 2
     w_md = (clf.theta_[0, :] - clf.theta_[1, :]).reshape(-1)

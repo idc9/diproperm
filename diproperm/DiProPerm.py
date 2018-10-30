@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.stats import ttest_ind
-from copy import deepcopy
 from collections import Counter
 import matplotlib.pyplot as plt
 from sklearn.externals.joblib import dump, load
@@ -10,9 +9,10 @@ from sklearn.externals.joblib import Parallel, delayed
 
 class DiProPerm(object):
     """
-    DiProPerm for two classes. For details see:
-    Direction-Projection-Permutation for High Dimensional Hypothesis Tests
-    https://arxiv.org/pdf/1304.0796.pdf
+    Direction-Projection-Permutation for High Dimensional Hypothesis Tests (DiProPerm)
+    For details see Wei et al, 2016.
+
+    Wei, S., Lee, C., Wichers, L., & Marron, J. S. (2016). Direction-projection-permutation for high-dimensional hypothesis tests. Journal of Computational and Graphical Statistics, 25(2), 549-569.
 
     Parameters
     ----------
@@ -20,10 +20,12 @@ class DiProPerm(object):
         Number of permutations to sample.
 
     clf: str, callable
-        Linear classification algorithm to use.
+        Linear classification algorithm to use. If str, must be one of ['md'].
+        If callable, must take two arguments: X, y and return a vector of scores
+        where the scores are Xw, w the linear classification normal vector.
 
     stat: str, list {'md', 't', 'auc'}
-        The test statistics to compute.
+        The test statistics to compute. Multiple can be provided.
 
     alpha: float
         Cutoff for significance.
@@ -32,7 +34,6 @@ class DiProPerm(object):
         Number of jobs for parallel processing permutations using
         from sklearn.externals.joblib.Parallel. If None, will not use
         parallel processing.
-
 
     Attributes
     ----------
@@ -94,6 +95,9 @@ class DiProPerm(object):
             raise ValueError("{} is invalid method. Expected: 'md' or callable")
 
     def get_perm_sep_stats(self, X, y):
+        """
+        Samples permutation separation statistics.
+        """
         if self.n_jobs is not None:
             # compute permutation statistics in parallel
             ps = Parallel(n_jobs=self.n_jobs)(delayed(_get_stat)(X, y, self)
@@ -142,6 +146,7 @@ class DiProPerm(object):
         # compute permutation statistics
         perm_stats = self.get_perm_sep_stats(X, y)
 
+        # store results
         self.perm = {}
         self.results = {}
         for s in self.stat:
@@ -164,6 +169,17 @@ class DiProPerm(object):
         return self
 
     def hist(self, stat, bins=30):
+        """
+        Plots a histogram of the DiProPerm distribution.
+
+        Parameters
+        ----------
+        stat: str
+            Which summary statistic to show.
+
+        bins: int
+            Number of bins for histogram.
+        """
         assert stat in self.results
 
         plt.hist(self.perm[stat]['samples'],
@@ -212,6 +228,10 @@ def get_test_stats(obs_stat, perm_stats, alpha=0.05):
 
 
 def get_md_scores(X, y):
+    """
+    Computes the mean difference scores i.e. X w_md where
+    w_md = normalized( mean(X_positive) - mean(X_negative) )
+    """
     y = np.array(y)
     X = np.array(X)
     if X.ndim == 1:
@@ -224,16 +244,12 @@ def get_md_scores(X, y):
     return np.dot(X, w)
 
 
-def get_separation_statistic(scores, y, stat='md', robust=False):
+def get_separation_statistic(scores, y, stat='md'):
     y = np.array(y)
     classes = np.unique(y)
     assert len(classes) == 2
     s0 = scores[y == classes[0]]
     s1 = scores[y == classes[1]]
-
-    if robust:
-        raise NotImplementedError
-        # TODO: implement mean and mad
 
     if stat == 'md':
         return abs(np.mean(s0) - np.mean(s1))
