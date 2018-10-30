@@ -1,0 +1,13 @@
+MANIFEST.in
+README.rst
+setup.py
+diproperm/DiProPerm.py
+diproperm/__init__.py
+diproperm/classifiers.py
+diproperm.egg-info/PKG-INFO
+diproperm.egg-info/SOURCES.txt
+diproperm.egg-info/dependency_links.txt
+diproperm.egg-info/not-zip-safe
+diproperm.egg-info/requires.txt
+diproperm.egg-info/top_level.txt
+diproperm/tests/__init__.py

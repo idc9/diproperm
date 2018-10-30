@@ -1,0 +1,11 @@
+Metadata-Version: 1.1
+Name: diproperm
+Version: 0.0.1
+Summary: Implements DiProPerm for high dimensional hypothesis testing.
+Home-page: https://github.com/idc9/diproperm
+Author: Iain Carmichael
+Author-email: idc9@cornell.edu
+License: MIT
+Download-URL: https://github.com/idc9/diproperm/tarball/0.0.1
+Description: UNKNOWN
+Platform: UNKNOWN
