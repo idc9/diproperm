@@ -52,7 +52,7 @@ Example
     dpp = DiProPerm(B=1000, stat='md', clf='md')
     dpp.fit(X, y)
 
-    dpp.results['md']
+    dpp.test_stats_['md']
 
 .. code:: python
 

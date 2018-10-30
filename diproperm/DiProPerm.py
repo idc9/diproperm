@@ -6,13 +6,22 @@ from sklearn.externals.joblib import dump, load
 from sklearn.metrics import roc_auc_score
 from sklearn.externals.joblib import Parallel, delayed
 
+from diproperm.classifiers import get_md_scores
+
 
 class DiProPerm(object):
     """
-    Direction-Projection-Permutation for High Dimensional Hypothesis Tests (DiProPerm)
-    For details see Wei et al, 2016.
+    Direction-Projection-Permutation for High Dimensional Hypothesis Tests
+    (DiProPerm). See (Wei et al, 2016) for details.
 
-    Wei, S., Lee, C., Wichers, L., & Marron, J. S. (2016). Direction-projection-permutation for high-dimensional hypothesis tests. Journal of Computational and Graphical Statistics, 25(2), 549-569.
+    Let X1,...,Xm and Y1,...,Yn be independent random samples of d dimensional
+    random vectors with multivariate distributions F1 and F2, respectively.
+    We are interested interested the null hypothesis of equal distributions
+    H0 : F1 = F2 versus H1 : F1 != F2.
+
+    Wei, S., Lee, C., Wichers, L., & Marron, J. S. (2016).
+    Direction-projection-permutation for high-dimensional hypothesis tests.
+    Journal of Computational and Graphical Statistics, 25(2), 549-569.
 
     Parameters
     ----------
@@ -20,15 +29,24 @@ class DiProPerm(object):
         Number of permutations to sample.
 
     clf: str, callable
-        Linear classification algorithm to use. If str, must be one of ['md'].
-        If callable, must take two arguments: X, y and return a vector of scores
-        where the scores are Xw, w the linear classification normal vector.
+        Linear classification algorithm used to find a direction.
+        If str, must be one of ['md']. If callable, must take two arguments:
+        X, y and return a vector of scores where the scores are Xw, w the
+        linear classification normal vector.
 
     stat: str, list {'md', 't', 'auc'}
-        The test statistics to compute. Multiple can be provided.
+        The univariate two-sample summary statistics measuring the separation
+        between the two classes' scores. See section 2.2 of (Wei et al, 2016).
+        Multiple can be provided as a list.
 
     alpha: float
         Cutoff for significance.
+
+    custom_tests_stats: None, iterable of (str, callable) tuples
+        Custom test statistics which are a function of (obs_stat, perm_samples).
+        The str argument identifies the name of the statistic (used for)
+        keys of test_stats attributed. The function, f, must take
+        arguments f(obs_stat, perm_samples) and return a value.
 
     n_jobs: None, int
         Number of jobs for parallel processing permutations using
@@ -38,15 +56,15 @@ class DiProPerm(object):
     Attributes
     ----------
 
-    results: dict
-        dict keyed by summary statistics containing the results
+    test_stats_: dict
+        dict keyed by summary statistics containing the test statistics
         (e.g. p-value, Z statistic, etc)
 
-    perm: dict
-        dict keyed by summary statistics containing the permutation
-        samples.
+    perm_samples_: dict
+        dict containing the permutation statistic samples keyed by the
+        summary statistics.
 
-    metadata: dict
+    metadata_: dict
 
     classes_: list
         Class labels. For classification, classes_[0] is considered to
@@ -54,7 +72,7 @@ class DiProPerm(object):
 
     """
     def __init__(self, B=100, clf='md', stat='md', alpha=0.05,
-                 n_jobs=None):
+                 custom_test_stats=None, n_jobs=None):
 
         self.B = int(B)
         self.clf = clf
@@ -62,6 +80,7 @@ class DiProPerm(object):
         if type(stat) != list:
             stat = [stat]
         self.stat = stat
+        self.custom_test_stats = custom_test_stats
         self.n_jobs = n_jobs
 
     def get_params(self):
@@ -75,7 +94,7 @@ class DiProPerm(object):
             cats = self.classes_
             r += ' of {} vs. {} \n'.format(cats[0], cats[1])
             for s in self.stat:
-                r += '{}: {}\n'.format(s, self.results[s])
+                r += '{}: {}\n'.format(s, self.test_stats_[s])
 
         return r
 
@@ -103,20 +122,20 @@ class DiProPerm(object):
             ps = Parallel(n_jobs=self.n_jobs)(delayed(_get_stat)(X, y, self)
                                               for i in range(self.B))
 
-            perm_stats = {s: np.zeros(self.B) for s in self.stat}
+            perm_samples = {s: np.zeros(self.B) for s in self.stat}
             for b in range(self.B):
                 for s in self.stat:
-                    perm_stats[s][b] = ps[b][s]
-            return perm_stats
+                    perm_samples[s][b] = ps[b][s]
+            return perm_samples
 
         else:
-            perm_stats = {s: np.zeros(self.B) for s in self.stat}
+            perm_samples = {s: np.zeros(self.B) for s in self.stat}
             for b in range(self.B):
                 y_perm = np.random.permutation(y)
                 scores = self.compute_scores(X, y_perm)
                 for s in self.stat:
-                    perm_stats[s][b] = get_separation_statistic(scores, y_perm, stat=s)
-            return perm_stats
+                    perm_samples[s][b] = get_separation_statistic(scores, y_perm, stat=s)
+            return perm_samples
 
     def fit(self, X, y):
         """
@@ -144,27 +163,19 @@ class DiProPerm(object):
             obs_stat[s] = get_separation_statistic(obs_scores, y, stat=s)
 
         # compute permutation statistics
-        perm_stats = self.get_perm_sep_stats(X, y)
+        self.perm_samples_ = self.get_perm_sep_stats(X, y)
 
         # store results
-        self.perm = {}
-        self.results = {}
+        self.test_stats_ = {}
         for s in self.stat:
-            pval, Z, rejected, cutoff_val = get_test_stats(obs_stat[s],
-                                                           perm_stats[s])
+            self.test_stats_[s] = \
+                get_test_statistics(obs_stat=obs_stat[s],
+                                    perm_samples=self.perm_samples_[s],
+                                    alpha=self.alpha,
+                                    custom_test_stats=self.custom_test_stats)
 
-            self.perm[s] = {'samples': perm_stats[s],
-                            'mean': np.mean(perm_stats[s]),
-                            'std': np.std(perm_stats[s])}
-
-            self.results[s] = {'obs': obs_stat[s],
-                               'pval': pval,
-                               'Z': Z,
-                               'rejected': rejected,
-                               'cutoff_val': cutoff_val}
-
-        self.metadata = {'counter':  dict(Counter(y)),
-                         'shape': X.shape}
+        self.metadata_ = {'counter':  dict(Counter(y)),
+                          'shape': X.shape}
 
         return self
 
@@ -180,29 +191,32 @@ class DiProPerm(object):
         bins: int
             Number of bins for histogram.
         """
-        assert stat in self.results
+        assert stat in self.test_stats_.keys()
 
-        plt.hist(self.perm[stat]['samples'],
+        plt.hist(self.perm_samples_[stat],
                  color='blue',
                  label='permutation stats',
                  bins=bins)
 
-        if self.results[stat]['rejected']:
+        if self.test_stats_[stat]['rejected']:
             obs_lw = 3
-            obs_label = 'obs stat (significant, p = {})'.format(self.results[stat]['pval'])
+            obs_label = 'obs stat (significant, p = {})'.\
+                format(self.test_stats_[stat]['pval'])
         else:
             obs_lw = 1
-            obs_label = 'obs stat (not significant, p = {})'.format(self.results[stat]['pval'])
-        plt.axvline(self.results[stat]['obs'], color='red', lw=obs_lw, label=obs_label)
+            obs_label = 'obs stat (not significant, p = {})'.\
+                format(self.test_stats_[stat]['pval'])
 
-        plt.axvline(self.results[stat]['cutoff_val'], color='grey', ls='dashed',
-                    label='significance cutoff (alpha = {})'.format(self.alpha))
+        plt.axvline(self.test_stats_[stat]['obs'], color='red', lw=obs_lw,
+                    label=obs_label)
+
+        plt.axvline(self.test_stats_[stat]['cutoff_val'], color='grey',
+                    ls='dashed',
+                    label='significance cutoff (alpha = {})'.
+                          format(self.alpha))
 
         plt.xlabel('DiProPerm {} statistic'.format(stat))
         plt.legend()
-
-    # def get_test_stats(self, stat):
-    #     return {k: self.results[stat][k] for k in ['pval', 'rejected', 'Z', 'cutoff_val']}
 
 
 def _get_stat(X, y, dpp):
@@ -217,31 +231,38 @@ def _get_stat(X, y, dpp):
     return ps
 
 
-def get_test_stats(obs_stat, perm_stats, alpha=0.05):
-    pval = np.mean(obs_stat < perm_stats)
-    Z = (obs_stat - np.mean(perm_stats)) / np.std(perm_stats)
-
-    rejected = pval < alpha
-    cutoff_val = np.percentile(perm_stats, 100*(1-alpha))
-
-    return pval, Z, rejected, cutoff_val
-
-
-def get_md_scores(X, y):
+def get_test_statistics(obs_stat, perm_samples, alpha=0.05,
+                        custom_test_stats=None):
     """
-    Computes the mean difference scores i.e. X w_md where
-    w_md = normalized( mean(X_positive) - mean(X_negative) )
-    """
-    y = np.array(y)
-    X = np.array(X)
-    if X.ndim == 1:
-        X = X.reshape(-1, 1)
-    classes = np.unique(y)
-    assert len(classes) == 2
+    obs_stat: float
+        The observed statistic.
 
-    w = X[y == classes[0], :].mean(axis=0) - X[y == classes[1], :].mean(axis=0)
-    w /= np.linalg.norm(w)
-    return np.dot(X, w)
+    perm_samples: list
+        The sampled permutation statistics.
+
+    alpha: float, between 0 and 1
+        The cutoff value.
+
+    custom_tests_stats: None, iterable
+        User provided custom test statistics. Must allow for
+        for stat, f in custom_test_stats where stat is a str
+        and f is a function f(obs_stat, perm_samples) returning a value.
+    """
+
+    stats = {}
+    stats['obs'] = obs_stat
+
+    stats['pval'] = np.mean(obs_stat < perm_samples)
+    stats['rejected'] = stats['pval'] < alpha
+    stats['cutoff_val'] = np.percentile(perm_samples, 100 * (1 - alpha))
+
+    stats['Z'] = (obs_stat - np.mean(perm_samples)) / np.std(perm_samples)
+
+    if custom_test_stats is not None:
+        for stat, f in custom_test_stats:
+            stats[stat] = f(obs_stat=obs_stat, perm_samples=perm_samples)
+
+    return stats
 
 
 def get_separation_statistic(scores, y, stat='md'):

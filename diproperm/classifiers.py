@@ -110,3 +110,20 @@ def get_GNB_direction(clf):
     Sigma_inv = np.diag(1.0/sigma)  # TODO: safe invert
     w_nb = Sigma_inv.dot(w_md)
     return w_nb.reshape(-1)
+
+
+def get_md_scores(X, y):
+    """
+    Computes the mean difference scores i.e. X w_md where
+    w_md = normalized( mean(X_positive) - mean(X_negative) )
+    """
+    y = np.array(y)
+    X = np.array(X)
+    if X.ndim == 1:
+        X = X.reshape(-1, 1)
+    classes = np.unique(y)
+    assert len(classes) == 2
+
+    w = X[y == classes[0], :].mean(axis=0) - X[y == classes[1], :].mean(axis=0)
+    w /= np.linalg.norm(w)
+    return np.dot(X, w)
