@@ -16,4 +16,6 @@ setup(name='diproperm',
       install_requires=install_requires,
       test_suite='nose.collector',
       tests_require=['nose'],
+      url='https://github.com/idc9/diproperm',
+      download_url = 'https://github.com/idc9/diproperm/tarball/0.0.1',
       zip_safe=False)
