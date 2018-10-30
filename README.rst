@@ -40,7 +40,9 @@ Example
 
     X, y = make_blobs(n_samples=100, n_features=2, centers=2, cluster_std=2)
 
-    dpp = DiProPerm(B=1000, stat='md')
+    # DiProPerm with mean difference classifier, mean difference summary
+    # statistic, and 1000 permutation samples.
+    dpp = DiProPerm(B=1000, stat='md', clf='md')
     dpp.fit(X, y)
 
     dpp.results['md']
