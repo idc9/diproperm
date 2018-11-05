@@ -23,28 +23,38 @@ def get_training_fun(clf, param_grid=None, metric='roc_auc', n_splits=5):
 
     Output
     ------
-    get_scores: callable
-        Takes X, y input, trains the linear classifier, extracts the normal vector
-        then returns the training data scores.
+    get_normal_vector: callable
+        Takes X, y input, trains the linear classifier then returns
+        the normal vector.
 
+
+        Parameters
+        ----------
+        X: array-like, shape (n_samples, n_features)
+            The X data.
+
+        y: array-like, shape (n_samples, )
+            Class labels.
     """
 
-    def get_scores(X, y):
+    def get_normal_vector(X, y):
         """
         Selects hyper-parameters using cross-validation. Then refits
         using the full data set and returns the classification scores.
 
         Parameters
         -----------
-        X (ndarray): dataset with observations on rows
+        X: array-like, shape (n_samples, n_features)
+            The X data.
 
-        y (list): class labels
+        y: array-like, shape (n_samples, )
+            Class labels.
 
         Output
         -----
-        let w = normalized classification vector; returns the
-        training data scores (i.e. projection onto normal vector)
-        which are given by s = Xw
+
+        w: array-like, shape (n_features, )
+            Normalized classification vector.
         """
 
         if param_grid is None or len(param_grid) == 0:
@@ -61,8 +71,9 @@ def get_training_fun(clf, param_grid=None, metric='roc_auc', n_splits=5):
 
         w = get_clf_normal_vector(clf_trained).reshape(-1)
         w /= np.linalg.norm(w)
-        return np.dot(X, w)
-    return get_scores
+        return w
+
+    return get_normal_vector
 
 
 def get_clf_normal_vector(clf):
@@ -91,7 +102,6 @@ def get_NC_direction(clf):
     """
     Returns the normal vector for NearestCentroid with binary classes
     """
-    # TODO:
     assert type(clf) == NearestCentroid
     assert clf.centroids_.shape[0] == 2
     return (clf.centroids_[0, :] - clf.centroids_[1, :]).reshape(-1)
@@ -112,10 +122,26 @@ def get_GNB_direction(clf):
     return w_nb.reshape(-1)
 
 
-def get_md_scores(X, y):
+def get_md_normal_vector(X, y):
     """
-    Computes the mean difference scores i.e. X w_md where
-    w_md = normalized( mean(X_positive) - mean(X_negative) )
+    Computes the mean difference normal vector, w_md, where
+    w_md = mean(X_positive) - mean(X_negative)
+    w_md = normalize(w_md)
+
+    Parameters
+    -----------
+    X: array-like, shape (n_samples, n_features)
+        The X data.
+
+    y: array-like, shape (n_samples, )
+        Class labels.
+
+    Output
+    -----
+
+    w: array-like, shape (n_features, )
+        Normalized classification vector.
+
     """
     y = np.array(y)
     X = np.array(X)
@@ -126,4 +152,5 @@ def get_md_scores(X, y):
 
     w = X[y == classes[0], :].mean(axis=0) - X[y == classes[1], :].mean(axis=0)
     w /= np.linalg.norm(w)
-    return np.dot(X, w)
+    return w
+    # return np.dot(X, w)
