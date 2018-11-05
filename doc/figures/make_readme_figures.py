@@ -10,9 +10,16 @@ plt.scatter(X[:, 0], X[:, 1], c=y)
 plt.savefig('data.png')
 plt.close()
 
-dpp = DiProPerm(B=1000, stat='md', clf='md')
-dpp.fit(X, y)
+dpp = DiProPerm().fit(X, y)
 
-dpp.hist('md')
-plt.savefig('dpp_hist.png')
+plt.figure(figsize=[12, 5])
+
+# show histogram of separation statistics
+plt.subplot(1, 2, 1)
+dpp.plot_perm_sep_stats(stat='md')
+
+# the observed scores
+plt.subplot(1, 2, 2)
+dpp.plot_observed_scores()
+plt.savefig('readme_fig.png')
 plt.close()

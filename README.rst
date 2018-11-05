@@ -49,7 +49,7 @@ Example
 
     # DiProPerm with mean difference classifier, mean difference summary
     # statistic, and 1000 permutation samples.
-    dpp = DiProPerm(B=1000, stat='md', clf='md')
+    dpp = DiProPerm(B=1000, separation_stats=['md', 't', 'auc'], clf='md')
     dpp.fit(X, y)
 
     dpp.test_stats_['md']
@@ -66,7 +66,7 @@ Example
 
     dpp.hist('md')
 
-.. image:: doc/figures/dpp_hist.png
+.. image:: doc/figures/readme_fig.png
 
 
 For more example code see `these example notebooks`_.
