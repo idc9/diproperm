@@ -73,7 +73,7 @@ Example
     plt.subplot(1, 2, 2)
     dpp.plot_observed_scores()
 
-.. image:: doc/figures/readme_fig.png
+.. image:: doc/figures/dpp_plots.png
 
 
 For more example code see `these example notebooks`_.
