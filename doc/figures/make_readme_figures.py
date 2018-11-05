@@ -21,5 +21,5 @@ dpp.plot_perm_sep_stats(stat='md')
 # the observed scores
 plt.subplot(1, 2, 2)
 dpp.plot_observed_scores()
-plt.savefig('readme_fig.png')
+plt.savefig('dpp_plots.png')
 plt.close()
