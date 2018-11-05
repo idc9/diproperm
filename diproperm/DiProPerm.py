@@ -323,6 +323,42 @@ class DiProPerm(object):
         plot_perm_scores(perm_scores=self.perm_scores_[b, :],
                          perm_y=self.perm_y_[b, :], obs_y=self.obs_y_)
 
+    def plot_diagnostic(self, stat):
+        """
+        Plots DiProPerm diagnostic for a given separation statistics.
+
+        - (top left) observed data scores, colored by observed classes
+        - (top right) DiProPerm null distribution
+        - (bottom left) permuted data scores of the permutation with the
+        smallest statistic value
+
+        - (bottom left) permuted data scores of the permutation with the
+        largest statistic value
+
+        Parameters
+        ----------
+        stat: str
+            Which separation statistic.
+        """
+        # plt.figure(figsize=[20, 20])
+        plt.subplot(2, 2, 1)
+        self.plot_observed_scores()
+
+        plt.subplot(2, 2, 2)
+        self.plot_perm_sep_stats(stat)
+
+        plt.subplot(2, 2, 3)
+        idx_min = np.argmin(self.perm_sep_stats_[stat])
+        val_min = self.perm_sep_stats_[stat][idx_min]
+        self.plot_perm_scores(idx_min)
+        plt.title('smallest {} ({:1.3f})'.format(stat, val_min))
+
+        plt.subplot(2, 2, 4)
+        idx_max = np.argmax(self.perm_sep_stats_[stat])
+        val_max = self.perm_sep_stats_[stat][idx_max]
+        self.plot_perm_scores(idx_max)
+        plt.title('largest {} ({:1.3f})'.format(stat, val_max))
+
 
 def get_test_statistics(obs_stat, perm_samples, alpha=0.05,
                         custom_test_stats=None):

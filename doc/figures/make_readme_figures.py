@@ -16,10 +16,11 @@ plt.figure(figsize=[12, 5])
 
 # show histogram of separation statistics
 plt.subplot(1, 2, 1)
-dpp.plot_perm_sep_stats(stat='md')
+dpp.plot_observed_scores()
 
 # the observed scores
 plt.subplot(1, 2, 2)
-dpp.plot_observed_scores()
+dpp.plot_perm_sep_stats(stat='md')
+
 plt.savefig('dpp_plots.png')
 plt.close()
