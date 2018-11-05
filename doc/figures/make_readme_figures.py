@@ -10,7 +10,7 @@ plt.scatter(X[:, 0], X[:, 1], c=y)
 plt.savefig('data.png')
 plt.close()
 
-dpp = DiProPerm().fit(X, y)
+dpp = DiProPerm(B=1000).fit(X, y)
 
 plt.figure(figsize=[12, 5])
 
