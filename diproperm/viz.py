@@ -82,17 +82,17 @@ def plot_perm_scores(perm_scores, perm_y, obs_y):
     jitter(perm_scores[obs0_perm0], **obs0_perm0_jitter_kws)
 
     label_obs0_perm1 = 'obs {}, perm {}'.format(classes[0], classes[1])
-    sns.distplot(perm_scores[obs0_perm1], label_obs0_perm1,
+    sns.distplot(perm_scores[obs0_perm1], label=label_obs0_perm1,
                  **obs0_perm1_dist_kws)
     jitter(perm_scores[obs0_perm1], **obs0_perm1_jitter_kws)
 
     label_obs1_perm0 = 'obs {}, perm {}'.format(classes[1], classes[0])
-    sns.distplot(perm_scores[obs1_perm0], label_obs1_perm0,
+    sns.distplot(perm_scores[obs1_perm0], label=label_obs1_perm0,
                  **obs1_perm0_dist_kws)
     jitter(perm_scores[obs1_perm0], **obs1_perm0_jitter_kws)
 
     label_obs1_perm1 = 'obs {}, perm {}'.format(classes[1], classes[1])
-    sns.distplot(perm_scores[obs1_perm1], label_obs1_perm1,
+    sns.distplot(perm_scores[obs1_perm1], label=label_obs1_perm1,
                  **obs1_perm1_dist_kws)
     jitter(perm_scores[obs1_perm1], **obs1_perm1_jitter_kws)
 
