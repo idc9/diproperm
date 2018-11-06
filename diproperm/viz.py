@@ -76,16 +76,24 @@ def plot_perm_scores(perm_scores, perm_y, obs_y):
     obs1_perm1_dist_kws = {'color': perm1_color, 'hist_kws': {'alpha': .1}}
     obs1_perm1_jitter_kws = {'color': perm1_color, 's': obs1_size, 'marker': obs1_marker}
 
-    sns.distplot(perm_scores[obs0_perm0], **obs0_perm0_dist_kws)
+    label_obs0_perm0 = 'obs {}, perm {}'.format(classes[0], classes[0])
+    sns.distplot(perm_scores[obs0_perm0], label=label_obs0_perm0,
+                 **obs0_perm0_dist_kws)
     jitter(perm_scores[obs0_perm0], **obs0_perm0_jitter_kws)
 
-    sns.distplot(perm_scores[obs0_perm1], **obs0_perm1_dist_kws)
+    label_obs0_perm1 = 'obs {}, perm {}'.format(classes[0], classes[1])
+    sns.distplot(perm_scores[obs0_perm1], label_obs0_perm1,
+                 **obs0_perm1_dist_kws)
     jitter(perm_scores[obs0_perm1], **obs0_perm1_jitter_kws)
 
-    sns.distplot(perm_scores[obs1_perm0], **obs1_perm0_dist_kws)
+    label_obs1_perm0 = 'obs {}, perm {}'.format(classes[1], classes[0])
+    sns.distplot(perm_scores[obs1_perm0], label_obs1_perm0,
+                 **obs1_perm0_dist_kws)
     jitter(perm_scores[obs1_perm0], **obs1_perm0_jitter_kws)
 
-    sns.distplot(perm_scores[obs1_perm1], **obs1_perm1_dist_kws)
+    label_obs1_perm1 = 'obs {}, perm {}'.format(classes[1], classes[1])
+    sns.distplot(perm_scores[obs1_perm1], label_obs1_perm1,
+                 **obs1_perm1_dist_kws)
     jitter(perm_scores[obs1_perm1], **obs1_perm1_jitter_kws)
 
     plt.xlabel('permutation scores')
