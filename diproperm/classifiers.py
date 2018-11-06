@@ -117,7 +117,7 @@ def get_GNB_direction(clf):
     p0 = clf.class_prior_[0]
     p1 = clf.class_prior_[1]
     sigma = p0 * clf.sigma_[0, :] + p1 * clf.sigma_[1, :]  # TODO: double check
-    Sigma_inv = np.diag(1.0/sigma)  # TODO: safe invert
+    Sigma_inv = np.diag(_safe_invert(sigma))
     w_nb = Sigma_inv.dot(w_md)
     return w_nb.reshape(-1)
 
@@ -154,3 +154,10 @@ def get_md_normal_vector(X, y):
     w /= np.linalg.norm(w)
     return w
     # return np.dot(X, w)
+
+
+def _safe_invert(x):
+    if np.allclose(x, 0):
+        return 0
+    else:
+        return 1.0/x
