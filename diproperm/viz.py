@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from collections import Counter
 
 from diproperm.viz_utils import jitter
 
@@ -20,10 +21,14 @@ def plot_observed_scores(obs_scores, y):
     """
     classes = np.unique(y)
     mask0 = y == classes[0]
+    counts = Counter(y)
 
-    sns.distplot(obs_scores[mask0], color='red', label=str(classes[0]))
+    label0 = '{} (n={})'.format(classes[0], counts[classes[0]])
+    sns.distplot(obs_scores[mask0], color='red', label=label0)
     jitter(obs_scores[mask0], color='red')
-    sns.distplot(obs_scores[~mask0], color='blue', label=str(classes[1]))
+
+    label1 = '{} (n={})'.format(classes[1], counts[classes[1]])
+    sns.distplot(obs_scores[~mask0], color='blue', label=label1)
     jitter(obs_scores[~mask0], color='blue')
     plt.legend()
     plt.xlabel('observed scores')

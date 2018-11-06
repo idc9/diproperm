@@ -327,13 +327,12 @@ class DiProPerm(object):
         """
         Plots DiProPerm diagnostic for a given separation statistics.
 
-        - (top left) observed data scores, colored by observed classes
-        - (top right) DiProPerm null distribution
-        - (bottom left) permuted data scores of the permutation with the
-        smallest statistic value
-
-        - (bottom left) permuted data scores of the permutation with the
-        largest statistic value
+        - (top left) Observed data scores, colored by observed classes.
+        - (top right) DiProPerm null distribution.
+        - (bottom left) Permuted data scores of the permutation with the
+        smallest statistic value.
+        - (bottom right) Permuted data scores of the permutation with the
+        largest statistic value.
 
         Parameters
         ----------
